@@ -1,10 +1,9 @@
-import { Component, onMounted, onWillUnmount, proxy, usePlugin } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
+import { browser } from "@web/core/browser/browser";
 import { router } from "@web/core/browser/router";
-import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-import { OfflinePlugin } from "@web/core/offline/offline_plugin";
 import { _t } from "@web/core/l10n/translation";
 import { useBus, useService } from "@web/core/utils/hooks";
 import { sidebarState, toggleSidebar } from "./sidebar_state";
@@ -21,25 +20,36 @@ import { sidebarState, toggleSidebar } from "./sidebar_state";
 export class GloobalSidebar extends Component {
     static template = "gloobal_backend_sidebar.Sidebar";
     static components = { Dropdown, DropdownItem };
+    static props = {};
 
     setup() {
         this.menuService = useService("menu");
         this.pwa = useService("pwa");
-        this.ui = proxy(useService("ui"));
-        this.debugMode = usePlugin(DebugModePlugin);
-        this.offlinePlugin = usePlugin(OfflinePlugin);
-        this.sidebar = sidebarState;
-        this.state = proxy({
+        this.ui = useState(useService("ui"));
+        this.sidebar = useState(sidebarState);
+        this.state = useState({
             activeMenuId: null,
             // explicit open/closed choices of the user, by group id
             groups: {},
         });
         this.clickedMenuId = null;
         // one manual dropdown state per app icon of the collapsed rail
+        // (hooks: created here, for the apps known at start)
         this.railStates = {};
+        for (const app of this.menuService.getApps()) {
+            this.railStates[app.id] = useDropdownState();
+        }
 
-        useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", () => this.syncActiveMenu());
-        useBus(this.env.bus, "MENUS:APP-CHANGED", () => this.syncActiveMenu());
+        // Odoo 19 pushes the router state on the next tick (debounced
+        // pushState): read it after that
+        useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", () =>
+            browser.setTimeout(() => this.syncActiveMenu())
+        );
+        // the menu service is not reactive in Odoo 19: re-render on app change
+        useBus(this.env.bus, "MENUS:APP-CHANGED", () => {
+            this.syncActiveMenu();
+            this.render();
+        });
 
         onMounted(() => {
             document.body.classList.add("o_gloobal_has_sidebar");
@@ -93,16 +103,8 @@ export class GloobalSidebar extends Component {
 
     getMenuItemHref(menu) {
         const url = `/odoo/${menu.actionPath || "action-" + menu.actionID}`;
-        const mode = this.debugMode.toString();
+        const mode = this.env.debug;
         return mode ? `${url}?debug=${mode}` : url;
-    }
-
-    isAvailable(menu) {
-        return (
-            !this.offlinePlugin.isOffline() ||
-            !menu.actionID ||
-            this.offlinePlugin.isAvailableOffline(menu.actionID)
-        );
     }
 
     containsActive(menu) {
@@ -174,9 +176,6 @@ export class GloobalSidebar extends Component {
     }
 
     railState(app) {
-        if (!this.railStates[app.id]) {
-            this.railStates[app.id] = useDropdownState();
-        }
         return this.railStates[app.id];
     }
 

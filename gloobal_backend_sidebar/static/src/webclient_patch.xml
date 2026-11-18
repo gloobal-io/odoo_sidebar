@@ -18,7 +18,7 @@
                     data-hotkey="h"
                     data-available-offline=""
                     t-on-click="() => this.onGloobalSidebarToggle()">
-                <i class="oi" data-icon="menu" aria-hidden="true"/>
+                <i class="fa fa-bars" aria-hidden="true"/>
             </button>
         </xpath>
         <xpath expr="//t[@t-call='web.NavBar.SectionsMenu']" position="replace"/>

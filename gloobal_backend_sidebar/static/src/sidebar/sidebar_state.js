@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { reactive } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 
 const COLLAPSED_KEY = "gloobal_sidebar.collapsed";
@@ -12,11 +12,12 @@ function readCollapsed() {
 }
 
 /**
- * State shared by the sidebar and the navbar toggle button.
+ * State shared by the sidebar and the navbar toggle button (components
+ * subscribe to it with `useState(sidebarState)`).
  * - collapsed: desktop rail mode (icons only), remembered in the browser;
  * - mobileOpen: off-canvas panel on small screens, closed by default.
  */
-export const sidebarState = proxy({
+export const sidebarState = reactive({
     collapsed: readCollapsed(),
     mobileOpen: false,
 });

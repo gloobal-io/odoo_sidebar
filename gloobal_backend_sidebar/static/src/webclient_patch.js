@@ -1,3 +1,4 @@
+import { useState } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 import { NavBar } from "@web/webclient/navbar/navbar";
@@ -10,7 +11,7 @@ WebClient.components = { ...WebClient.components, GloobalSidebar };
 patch(NavBar.prototype, {
     setup() {
         super.setup();
-        this.gloobalSidebar = sidebarState;
+        this.gloobalSidebar = useState(sidebarState);
     },
 
     get gloobalSidebarToggleLabel() {

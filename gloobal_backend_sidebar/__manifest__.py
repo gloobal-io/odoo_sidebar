@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gloobal Backend Sidebar',
-    'version': '20.0.1.0.0',
+    'version': '19.0.1.0.0',
     'category': 'Hidden/Tools',
     'summary': "Barre latérale de navigation dans le back-end",
     'description': """
