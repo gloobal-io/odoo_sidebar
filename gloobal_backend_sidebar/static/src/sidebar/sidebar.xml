@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="gloobal_backend_sidebar.Sidebar">
+        <aside class="o_gloobal_sidebar d-flex flex-column d-print-none"
+               t-att-class="{ o_collapsed: this.isCollapsed, o_mobile: this.ui.isSmall, o_open: this.isOpen }"
+               t-att-aria-hidden="this.isOpen ? 'false' : 'true'"
+               data-command-category="disabled">
+            <div t-if="this.ui.isSmall" class="o_gloobal_sidebar_top d-flex align-items-center justify-content-between flex-shrink-0">
+                <span class="fw-bold text-truncate ps-3" t-out="this.currentApp?.name or ''"/>
+                <button class="btn oi fs-3 text-reset border-0" data-icon="close_small"
+                        title="Close menu" aria-label="Close menu" t-on-click="() => this.close()"/>
+            </div>
+            <nav class="o_gloobal_sidebar_nav flex-grow-1 overflow-auto" aria-label="Navigation">
+                <ul class="list-unstyled m-0 py-2">
+                    <t t-foreach="this.apps" t-as="app" t-key="app.id">
+                        <t t-set="isCurrent" t-value="this.currentApp and app.id === this.currentApp.id"/>
+                        <li class="o_gloobal_sidebar_app" t-att-class="{ o_current: isCurrent }">
+                            <Dropdown t-if="this.isCollapsed"
+                                      position="'right-start'"
+                                      menuClass="'o_gloobal_sidebar_menu'"
+                                      state="this.railState(app)"
+                                      manual="true">
+                                <a class="o_gloobal_sidebar_link o_gloobal_sidebar_app_link"
+                                   t-att-class="{ active: isCurrent, o_disabled_offline: !this.isAvailable(app) }"
+                                   t-att-title="app.name"
+                                   t-att-aria-label="app.name"
+                                   t-att-href="this.getMenuItemHref(app)"
+                                   t-att-data-menu-xmlid="app.xmlid"
+                                   t-on-click="(ev) => this.onRailClick(ev, app)">
+                                    <t t-call="gloobal_backend_sidebar.AppIcon"/>
+                                </a>
+                                <t t-set-slot="content">
+                                    <DropdownItem
+                                        class="{ 'dropdown-item fw-bold': true, o_disabled_offline: !this.isAvailable(app) }"
+                                        onSelected="() => this.selectMenu(app)"
+                                        t-out="app.name"
+                                        attrs="{ href: this.getMenuItemHref(app), 'data-menu-xmlid': app.xmlid }"/>
+                                    <t t-call="gloobal_backend_sidebar.DropdownMenus"
+                                       items="this.appSections(app)" indent="16"/>
+                                </t>
+                            </Dropdown>
+                            <a t-else="" class="o_gloobal_sidebar_link o_gloobal_sidebar_app_link"
+                               t-att-class="{ active: isCurrent and !this.state.activeMenuId, o_disabled_offline: !this.isAvailable(app) }"
+                               t-att-href="this.getMenuItemHref(app)"
+                               t-att-data-menu-xmlid="app.xmlid"
+                               t-att-aria-current="isCurrent ? 'true' : 'false'"
+                               t-on-click="(ev) => this.onMenuClick(ev, app)">
+                                <t t-call="gloobal_backend_sidebar.AppIcon"/>
+                                <span class="o_gloobal_sidebar_label text-truncate" t-out="app.name"/>
+                            </a>
+                            <ul t-if="isCurrent and !this.isCollapsed" class="o_gloobal_sidebar_sections list-unstyled m-0">
+                                <t t-call="gloobal_backend_sidebar.Menus" items="this.appSections(app)" level="1"/>
+                            </ul>
+                        </li>
+                    </t>
+                </ul>
+            </nav>
+            <div t-if="!this.ui.isSmall" class="o_gloobal_sidebar_footer flex-shrink-0">
+                <button class="o_gloobal_sidebar_link o_gloobal_sidebar_collapse"
+                        t-att-title="this.collapseLabel"
+                        t-att-aria-label="this.collapseLabel"
+                        t-on-click="() => this.toggle()">
+                    <i class="oi" t-att-data-icon="this.isCollapsed ? 'chevron_right' : 'chevron_left'" aria-hidden="true"/>
+                    <span class="o_gloobal_sidebar_label">Collapse</span>
+                </button>
+            </div>
+        </aside>
+        <div t-if="this.ui.isSmall and this.sidebar.mobileOpen"
+             class="o_gloobal_sidebar_backdrop modal-backdrop show"
+             t-on-click="() => this.close()"/>
+    </t>
+
+    <t t-name="gloobal_backend_sidebar.AppIcon">
+        <t t-set="icon" t-value="this.appIcon(app)"/>
+        <span class="o_gloobal_sidebar_icon flex-shrink-0">
+            <img t-if="icon.image" t-att-src="icon.image" alt=""/>
+            <i t-elif="icon.iconClass" class="oi" t-att-data-icon="icon.iconClass" t-att-style="'color:' + icon.iconColor" aria-hidden="true"/>
+            <i t-else="" class="oi" data-icon="apps" aria-hidden="true"/>
+        </span>
+    </t>
+
+    <!-- Menus of the current app (expanded sidebar) -->
+    <t t-name="gloobal_backend_sidebar.Menus">
+        <t t-foreach="items" t-as="menu" t-key="menu.id">
+            <li t-if="menu.childrenTree.length" class="o_gloobal_sidebar_group">
+                <t t-set="groupOpen" t-value="this.isGroupOpen(menu)"/>
+                <button class="o_gloobal_sidebar_link o_gloobal_sidebar_group_toggle"
+                        t-att-class="{ o_has_active: !groupOpen and this.containsActive(menu) }"
+                        t-att-style="'--o-gloobal-level:' + level"
+                        t-att-aria-expanded="groupOpen ? 'true' : 'false'"
+                        t-att-data-menu-xmlid="menu.xmlid"
+                        t-on-click="() => this.toggleGroup(menu)">
+                    <span class="o_gloobal_sidebar_label text-truncate" t-out="menu.name"/>
+                    <i class="oi ms-auto o_gloobal_sidebar_chevron" t-att-data-icon="groupOpen ? 'chevron_down' : 'chevron_right'" aria-hidden="true"/>
+                </button>
+                <ul t-if="groupOpen" class="list-unstyled m-0">
+                    <t t-call="gloobal_backend_sidebar.Menus" items="menu.childrenTree" level="level + 1"/>
+                </ul>
+            </li>
+            <li t-else="">
+                <a class="o_gloobal_sidebar_link o_gloobal_sidebar_entry"
+                   t-att-class="{ active: menu.id === this.state.activeMenuId, o_disabled_offline: !this.isAvailable(menu) }"
+                   t-att-style="'--o-gloobal-level:' + level"
+                   t-att-href="this.getMenuItemHref(menu)"
+                   t-att-data-menu-xmlid="menu.xmlid"
+                   t-att-aria-current="menu.id === this.state.activeMenuId ? 'page' : 'false'"
+                   t-on-click="(ev) => this.onMenuClick(ev, menu)">
+                    <span class="o_gloobal_sidebar_label text-truncate" t-out="menu.name"/>
+                </a>
+            </li>
+        </t>
+    </t>
+
+    <!-- Menus of an app in the dropdown of the collapsed rail -->
+    <t t-name="gloobal_backend_sidebar.DropdownMenus">
+        <t t-foreach="items" t-as="item" t-key="item.id">
+            <DropdownItem
+                t-if="!item.childrenTree.length"
+                class="{ 'dropdown-item': true, active: item.id === this.state.activeMenuId, o_disabled_offline: !this.isAvailable(item) }"
+                onSelected="() => this.selectMenu(item)"
+                t-out="item.name"
+                attrs="{ style: 'padding-left: ' + indent + 'px', href: this.getMenuItemHref(item), 'data-menu-xmlid': item.xmlid }"/>
+            <t t-else="">
+                <div class="dropdown-header" t-att-style="'padding-left: ' + indent + 'px'" t-out="item.name"/>
+                <t t-call="gloobal_backend_sidebar.DropdownMenus" items="item.childrenTree" indent="indent + 12"/>
+            </t>
+        </t>
+    </t>
+
+</templates>

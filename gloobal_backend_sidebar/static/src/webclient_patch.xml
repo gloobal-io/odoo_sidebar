@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- The sidebar sits between the navbar and the action container -->
+    <t t-inherit="web.WebClient" t-inherit-mode="extension">
+        <xpath expr="//ActionContainer" position="before">
+            <GloobalSidebar t-if="!this.state.fullscreen"/>
+        </xpath>
+    </t>
+
+    <!-- Navbar: the apps menu and the app sections move to the sidebar -->
+    <t t-inherit="web.NavBar" t-inherit-mode="extension">
+        <xpath expr="//t[@t-call='web.NavBar.AppsMenu']" position="replace">
+            <button class="o_gloobal_sidebar_toggle border-0"
+                    t-att-title="this.gloobalSidebarToggleLabel"
+                    t-att-aria-label="this.gloobalSidebarToggleLabel"
+                    t-att-aria-expanded="(this.ui.isSmall ? this.gloobalSidebar.mobileOpen : !this.gloobalSidebar.collapsed) ? 'true' : 'false'"
+                    data-hotkey="h"
+                    data-available-offline=""
+                    t-on-click="() => this.onGloobalSidebarToggle()">
+                <i class="oi" data-icon="menu" aria-hidden="true"/>
+            </button>
+        </xpath>
+        <xpath expr="//t[@t-call='web.NavBar.SectionsMenu']" position="replace"/>
+    </t>
+
+</templates>

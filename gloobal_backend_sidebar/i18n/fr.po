@@ -1,0 +1,54 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* gloobal_backend_sidebar
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: gloobal_backend_sidebar
+#. odoo-javascript
+#: code:addons/gloobal_backend_sidebar/static/src/sidebar/sidebar.xml:0
+msgid "Close menu"
+msgstr "Fermer le menu"
+
+#. module: gloobal_backend_sidebar
+#. odoo-javascript
+#: code:addons/gloobal_backend_sidebar/static/src/sidebar/sidebar.xml:0
+msgid "Collapse"
+msgstr "Réduire"
+
+#. module: gloobal_backend_sidebar
+#. odoo-javascript
+#: code:addons/gloobal_backend_sidebar/static/src/sidebar/sidebar.js:0
+msgid "Expand menu"
+msgstr "Déplier le menu"
+
+#. module: gloobal_backend_sidebar
+#. odoo-javascript
+#: code:addons/gloobal_backend_sidebar/static/src/sidebar/sidebar.js:0
+msgid "Collapse menu"
+msgstr "Réduire le menu"
+
+#. module: gloobal_backend_sidebar
+#. odoo-javascript
+#: code:addons/gloobal_backend_sidebar/static/src/webclient_patch.js:0
+msgid "Open menu"
+msgstr "Ouvrir le menu"
+
+#. module: gloobal_backend_sidebar
+#. odoo-javascript
+#: code:addons/gloobal_backend_sidebar/static/src/webclient_patch.js:0
+msgid "Collapse or expand menu"
+msgstr "Réduire ou déplier le menu"
+
+#. module: gloobal_backend_sidebar
+#. odoo-javascript
+#: code:addons/gloobal_backend_sidebar/static/src/sidebar/sidebar.xml:0
+msgid "Navigation"
+msgstr "Navigation"

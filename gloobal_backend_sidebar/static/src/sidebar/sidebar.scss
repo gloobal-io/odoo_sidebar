@@ -1,0 +1,238 @@
+// = Gloobal backend sidebar
+// ============================================================================
+// Colors only come from Odoo / Bootstrap variables so the light and dark
+// bundles (web.assets_web_dark recompiles them) both apply.
+
+$o-gloobal-sidebar-width: 248px !default;
+$o-gloobal-sidebar-width--collapsed: 56px !default;
+$o-gloobal-sidebar-entry-height: 32px !default;
+$o-gloobal-sidebar-icon-size: 24px !default;
+
+// --- Layout: navbar on top, sidebar on the left of the action container ----
+@include media-only(screen) {
+    body.o_web_client.o_gloobal_has_sidebar {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        grid-auto-rows: auto;
+
+        > * {
+            grid-column: 1 / -1;
+        }
+
+        > .o_navbar {
+            grid-row: 1;
+        }
+
+        > .o_gloobal_sidebar {
+            grid-row: 2;
+            grid-column: 1;
+        }
+
+        > .o_action_manager {
+            grid-row: 2;
+            grid-column: 2;
+            min-width: 0;
+            min-height: 0;
+        }
+    }
+}
+
+// --- Navbar toggle button (takes the place of the apps menu) ---------------
+.o_main_navbar .o_gloobal_sidebar_toggle {
+    display: flex;
+    align-items: center;
+    height: calc(var(--o-navbar-height) - #{$o-navbar-padding-v * 2});
+    margin-right: map-get($spacers, 1);
+    padding: 0 $o-horizontal-padding * .75;
+    border-radius: $o-navbar-entry-border-radius;
+    background: transparent;
+    font-size: 1.25em;
+    color: var(--NavBar-entry-color, #{$o-navbar-entry-color});
+
+    &:hover, &:focus-visible, &[aria-expanded="true"]:hover {
+        background-color: var(--NavBar-entry-backgroundColor--hover, #{$o-navbar-entry-bg--hover});
+        color: var(--NavBar-entry-color--hover, #{$o-navbar-entry-color--hover});
+    }
+}
+
+// --- Sidebar ---------------------------------------------------------------
+.o_gloobal_sidebar {
+    --o-gloobal-level: 0;
+
+    width: $o-gloobal-sidebar-width;
+    min-height: 0;
+    border-right: $border-width solid $border-color;
+    background-color: $o-gray-100;
+    color: $o-main-text-color;
+    font-size: $o-font-size-base;
+    transition: width .15s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
+    .o_gloobal_sidebar_nav {
+        scrollbar-width: thin;
+    }
+
+    // Entries
+    .o_gloobal_sidebar_link {
+        display: flex;
+        align-items: center;
+        gap: map-get($spacers, 2);
+        min-height: $o-gloobal-sidebar-entry-height;
+        margin: 1px map-get($spacers, 2);
+        padding: map-get($spacers, 1) map-get($spacers, 2);
+        padding-left: calc(#{map-get($spacers, 2)} + var(--o-gloobal-level) * #{map-get($spacers, 3)});
+        border-radius: $border-radius;
+        background-color: transparent;
+        color: inherit;
+        text-align: start;
+        text-decoration: none;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover, &:focus-visible {
+            background-color: $o-gray-200;
+            color: $o-gray-900;
+        }
+
+        &.active {
+            background-color: var(--primary-bg-subtle);
+            color: var(--primary-text-emphasis);
+            font-weight: $font-weight-bold;
+        }
+
+        &.o_disabled_offline {
+            opacity: .5;
+            pointer-events: none;
+        }
+    }
+
+    button.o_gloobal_sidebar_link {
+        width: calc(100% - #{map-get($spacers, 2) * 2});
+        border: 0;
+    }
+
+    .o_gloobal_sidebar_app_link {
+        font-weight: $font-weight-bold;
+    }
+
+    .o_gloobal_sidebar_app.o_current > .o_gloobal_sidebar_app_link:not(.active) {
+        color: $o-gray-900;
+    }
+
+    .o_gloobal_sidebar_icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: $o-gloobal-sidebar-icon-size;
+        height: $o-gloobal-sidebar-icon-size;
+        border-radius: $border-radius-sm;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .oi {
+            font-size: $o-gloobal-sidebar-icon-size * .8;
+        }
+    }
+
+    .o_gloobal_sidebar_sections {
+        padding-bottom: map-get($spacers, 2);
+        // align the first level with the app name, after the icon
+        --o-gloobal-sections-offset: #{$o-gloobal-sidebar-icon-size + map-get($spacers, 2)};
+
+        .o_gloobal_sidebar_link {
+            padding-left: calc(#{map-get($spacers, 2)} + var(--o-gloobal-sections-offset) + (var(--o-gloobal-level) - 1) * #{map-get($spacers, 3)});
+            color: $o-gray-700;
+
+            &:hover, &:focus-visible {
+                color: $o-gray-900;
+            }
+
+            &.active {
+                color: var(--primary-text-emphasis);
+            }
+        }
+    }
+
+    .o_gloobal_sidebar_group_toggle {
+        &.o_has_active {
+            color: var(--primary-text-emphasis);
+        }
+
+        .o_gloobal_sidebar_chevron {
+            font-size: .85em;
+            opacity: .6;
+        }
+    }
+
+    .o_gloobal_sidebar_footer {
+        padding: map-get($spacers, 1) 0;
+        border-top: $border-width solid $border-color;
+
+        .o_gloobal_sidebar_collapse {
+            color: $o-gray-600;
+        }
+    }
+
+    // Collapsed rail (desktop)
+    &.o_collapsed {
+        width: $o-gloobal-sidebar-width--collapsed;
+
+        .o_gloobal_sidebar_link {
+            justify-content: center;
+            padding-left: map-get($spacers, 2);
+            padding-right: map-get($spacers, 2);
+        }
+
+        .o_gloobal_sidebar_label {
+            display: none;
+        }
+    }
+
+    // Off-canvas panel (small screens)
+    &.o_mobile {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: $zindex-tooltip + 10;
+        width: Min(320px, 85%);
+        border-right: 0;
+        box-shadow: $box-shadow-lg;
+        transform: translateX(-100%);
+        visibility: hidden;
+        transition: transform .2s ease, visibility 0s linear .2s;
+
+        &.o_open {
+            transform: translateX(0);
+            visibility: visible;
+            transition: transform .2s ease;
+        }
+
+        .o_gloobal_sidebar_top {
+            min-height: $o-navbar-height;
+            border-bottom: $border-width solid $border-color;
+        }
+
+        .o_gloobal_sidebar_link {
+            min-height: 40px;
+        }
+    }
+}
+
+.o_gloobal_sidebar_backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: $zindex-tooltip + 9;
+}
